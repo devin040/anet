@@ -24,7 +24,7 @@ export default class ProgramSummaryView extends React.Component {
     findParents = task => {
         const parents = []
         const matchParentTask = element => {
-            if (element.id === task.customFieldRef1.id) 
+            if (element.uuid === task.customFieldRef1.uuid) 
                 return element
         }
         while (task.customFieldRef1) 
@@ -37,7 +37,7 @@ export default class ProgramSummaryView extends React.Component {
         const now = new Date()
 
         // Making a starting object for aggregations with stats initialized at 0
-        const initialStats = Object.values(ProgramSummaryView.STATUS).reduce((accumulator, currentValue) => {accumulator[currentValue.id]=0; return accumulator},{})
+        const initialStats = Object.values(ProgramSummaryView.STATUS).reduce((accumulator, currentValue) => {accumulator[currentValue.uuid]=0; return accumulator},{})
 
         // Making a column for each possible enum value of customFieldEnum2
         const customFieldEnum2Columns = _.transform(Settings.fields.task.customFieldEnum2.enum, (result,val,key) => {
@@ -54,18 +54,18 @@ export default class ProgramSummaryView extends React.Component {
                 },
                 aggregate: (values, rows) => values.reduce((accumulator, currentValue) => {
                     if (currentValue)
-                        if (currentValue.id) // TODO: find better way to recognize non-aggregated values
-                            ++ accumulator[currentValue.id]
+                        if (currentValue.uuid) // TODO: find better way to recognize non-aggregated values
+                            ++ accumulator[currentValue.uuid]
                         else if (currentValue)
-                            Object.values(ProgramSummaryView.STATUS).forEach(element => accumulator[element.id] += currentValue[element.id])
+                            Object.values(ProgramSummaryView.STATUS).forEach(element => accumulator[element.uuid] += currentValue[element.uuid])
                     return accumulator
                 }, Object.assign({}, initialStats)) ,
                 Cell: row => {
                     if (!row.value)
                         return null
 
-                    if (row.value.id)
-                        return <div style={{color: row.value.color}}> {row.value.id} </div>
+                    if (row.value.uuid)
+                        return <div style={{color: row.value.color}}> {row.value.uuid} </div>
 
                     const number = row.value.overdue > 0 ? row.value.overdue : row.value.completed
                     const all = row.value.ongoing+row.value.overdue+row.value.completed
@@ -104,7 +104,7 @@ export default class ProgramSummaryView extends React.Component {
                             Header: "Task",
                             accessor: "shortName",
                             Aggregated: row => null,
-                            Cell: row => row.original && (<LinkTo task={row.original} key={row.original.id}>{row.original.shortName + " " + row.original.longName}</LinkTo>)
+                            Cell: row => row.original && (<LinkTo task={row.original} key={row.original.uuid}>{row.original.shortName + " " + row.original.longName}</LinkTo>)
                         }
                     ], customFieldEnum2Columns, [
                         {
@@ -121,7 +121,7 @@ export default class ProgramSummaryView extends React.Component {
     fetchData() {
         const chartQuery = API.query(/* GraphQL */
         `taskList (f:getAll pageSize:10000) { 
-            totalCount, list { id, shortName, longName, customFieldEnum1, customFieldEnum2, plannedCompletion, customFieldRef1 { id }, }
+            totalCount, list { uuid, shortName, longName, customFieldEnum1, customFieldEnum2, plannedCompletion, customFieldRef1 { uuid }, }
         }`)
 
         Promise

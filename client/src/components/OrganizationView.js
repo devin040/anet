@@ -31,7 +31,7 @@ export default class OrganizationView extends React.Component {
             {
                 list
                 {
-                id,shortName,parentOrg{id},childrenOrgs{id}
+                uuid,shortName,parentOrg{uuid},childrenOrgs{uuid}
                 }
             }`)
 
@@ -55,11 +55,11 @@ export default class OrganizationView extends React.Component {
 
         tree.nodeSize([15,150])
     
-        const rootOrg = {childrenOrgs : _.filter(this.state.data, org => !(org.parentOrg && org.parentOrg.id))}
+        const rootOrg = {childrenOrgs : _.filter(this.state.data, org => !(org.parentOrg && org.parentOrg.uuid))}
 
         var root = d3.hierarchy(rootOrg, d => { 
             return _.map( d ? d.childrenOrgs : []   , (orgRef) => _.find(this.state.data, function (e) {
-                return e.id === orgRef.id
+                return e.uuid === orgRef.uuid
             } ) )
         })
 
